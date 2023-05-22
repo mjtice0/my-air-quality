@@ -9,24 +9,19 @@ load_dotenv()
 my_api_read_key = os.getenv("API_READ_KEY")
 my_api_write_key = os.getenv("API_WRITE_KEY")
 
-    # my_url is the sensor where I'm getting information 
-my_url = "https://api.purpleair.com/v1/sensors/121321"
 
-    # my_headers is assigned the context of our request we want to make. 
-my_headers = {'X-API-Key':my_api_read_key}
+def call_API():
+    my_url = "https://api.purpleair.com/v1/sensors/121321"
+    my_headers = {'X-API-Key':my_api_read_key}
+    response = requests.get(my_url, headers=my_headers)
+    purple_air_data = response.json()
+    result = purple_air_data['sensor']['pm2.5']
+    
+    return result
+# Function to convert pm25 raw number to AQI, calls calculate AQI function
+def convert_to_AQI(result):
+    pm25 = result
 
-    # This line creates and sends the request and then assigns its response to the response variable
-response = requests.get(my_url, headers=my_headers)
-    #  Get data in json format
-purple_air_data = response.json()
-    # Extract desired values for calculating aqi
-pm25 = purple_air_data['sensor']['pm2.5']
-# pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
-print(pm25)
-# print(pm25_average)
-
-def convert_to_AQI(pm25):
-# Check that data is valid
     if pm25 < 0:
         return pm25
     
@@ -43,7 +38,7 @@ def convert_to_AQI(pm25):
     elif pm25 >= 0:
         return calculate_AQI(pm25, 50, 0, 12, 0)
     else:
-        return "none"
+        return None
 
 # Formula to convert PM to AQI from Airnow.gov:
 # Cp = the truncated concentration of pollutant p
@@ -52,14 +47,22 @@ def convert_to_AQI(pm25):
 # IHi = the AQI value corresponding to BPHi
 # ILo = the AQI value corresponding to BPLo
 
-# Function to convert pm2.5 to US aqi
+# Function to calculate pm2.5 to US aqi
 def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     a = (IHi - ILo)
     b = (BPHi - BPLo)
     c = (Cp - BPLo)
-    print(round((a / b) * c + ILo))
+    return round((a / b) * c + ILo)
 
-convert_to_AQI(pm25)
-
+API_response = call_API()
+print(convert_to_AQI(API_response))
 
 # Function to send get request at intervals -- Data is updated every two minutes
+# def get_data(takes_in_request_function):
+    # If countdown === 10 min:
+    # Retrieve data
+    # Store Data in DB? 
+# Function to determine if AQI is over a certain amount
+ # If # > 80, send messeage
+
+  # pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
