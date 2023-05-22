@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 # Load env variables from dotenv
 load_dotenv()
 
-# My api key variables
+# Api key variables
 my_api_read_key = os.getenv("API_READ_KEY")
 my_api_write_key = os.getenv("API_WRITE_KEY")
 
-
+# Function to make API call to get sensor data 
 def call_API():
     my_url = "https://api.purpleair.com/v1/sensors/121321"
     my_headers = {'X-API-Key':my_api_read_key}
@@ -52,17 +52,31 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     a = (IHi - ILo)
     b = (BPHi - BPLo)
     c = (Cp - BPLo)
-    return round((a / b) * c + ILo)
+    aqi = round(((a / b) * c + ILo))
+    return aqi
+
+air_quality_list = []
+
+# Function to add data to database -- will be updated to work with db
+def add_to_database(aqi):
+    air_quality_list.append(aqi)
+
+    print(air_quality_list)
 
 API_response = call_API()
-print(convert_to_AQI(API_response))
+aqi = convert_to_AQI(API_response)
+add_to_database(aqi)
 
 # Function to send get request at intervals -- Data is updated every two minutes
-# def get_data(takes_in_request_function):
-    # If countdown === 10 min:
-    # Retrieve data
-    # Store Data in DB? 
+# Add intervals to call_API function ?? 
+  
+
 # Function to determine if AQI is over a certain amount
- # If # > 80, send messeage
+
+# Function to initiate text/email/notification 
+
+
+
+ 
 
   # pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
