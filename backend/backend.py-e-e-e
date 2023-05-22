@@ -21,10 +21,25 @@ response = requests.get(my_url, headers=my_headers)
 purple_air_data = response.json()
     # Extract desired values for calculating aqi
 pm25 = purple_air_data['sensor']['pm2.5']
+pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
 print(pm25)
+print(pm25_average)
 
 # Function to convert pm2.5 to US aqi
-# def convert_to_aqi(pm25):
+# Formula:
+# Cp = the truncated concentration of pollutant p
+# BPHi = the concentration breakpoint that is greater than or equal to Cp 
+# BPLo = the concentration breakpoint that is less than or equal to Cp
+# IHi = the AQI value corresponding to BPHi
+# ILo = the AQI value corresponding to BPLo
+
+# def calculate_AQI(Cp, Ih, Il, BPh, BPL):
+#     12.1 - 35.4
+# 150 - 101 (pm2.5 - 12.1) + 101
+# 35.4 - 12.1
+#     a = (Ih - Il)
+#     b = (BPh - BPl)
+#     c = (Cp - BPL)
 
 
 # Function to send get request at intervals -- Data is updated every two minutes
