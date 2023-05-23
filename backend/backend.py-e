@@ -1,6 +1,8 @@
 import requests
 import os 
 from dotenv import load_dotenv
+import schedule
+import time
 
 # Load env variables from dotenv
 load_dotenv()
@@ -16,7 +18,7 @@ def call_API():
     response = requests.get(my_url, headers=my_headers)
     purple_air_data = response.json()
     result = purple_air_data['sensor']['pm2.5']
-    
+    print("API call executed")
     return result
 # Function to convert pm25 raw number to AQI, calls calculate AQI function
 def convert_to_AQI(result):
@@ -39,6 +41,8 @@ def convert_to_AQI(result):
         return calculate_AQI(pm25, 50, 0, 12, 0)
     else:
         return None
+    
+
 
 # Formula to convert PM to AQI from Airnow.gov:
 # Cp = the truncated concentration of pollutant p
@@ -53,26 +57,52 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     b = (BPHi - BPLo)
     c = (Cp - BPLo)
     aqi = round(((a / b) * c + ILo))
+    print("Calculation executed")
     return aqi
 
 air_quality_list = []
 
 # Function to add data to database -- will be updated to work with db
-def add_to_database(aqi):
+def save_to_database(aqi):
     air_quality_list.append(aqi)
 
     print(air_quality_list)
 
-API_response = call_API()
-aqi = convert_to_AQI(API_response)
-add_to_database(aqi)
+# Function to send get request at intervals -- Data is updated every two minutes, retrieve data every hour
+# Currently on 10s schedule for testing 
+# Change order of logic, call API_call_schedule in call_API function instead
+def API_call_schedule():
+    def scheduled_call():
+        API_response = call_API()
 
-# Function to send get request at intervals -- Data is updated every two minutes
-# Add intervals to call_API function ?? 
-  
+        aqi = convert_to_AQI(API_response)
+
+        save_to_database(aqi)
+
+    schedule.every(10).seconds.do(scheduled_call)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+API_call_schedule()
 
 # Function to determine if AQI is over a certain amount
+def send_alert(aqi):
+    if aqi > 80:
+        #call another function that sends an alert ? 
+        
+# Function to initiate text/email/notification 
+# Will need to add error logic for sequence of function calls so program does not break
 
+# Things to consider:
+# - how long will intervals go
+# - memoize data
+# - how event is triggered by user
+
+# API_response = call_API()
+# aqi = convert_to_AQI(API_response)
+# save_to_database(aqi)
 # Function to initiate text/email/notification 
 
 
