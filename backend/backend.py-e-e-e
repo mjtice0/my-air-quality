@@ -59,10 +59,11 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     print("Calculation executed")
     return aqi
 
-# Function to initiate text/email/notification 
+# Function to initiate sms text alert
+# Calls send_sms function
 def send_alert(aqi):
-    if aqi > 150:
-        send_sms()
+    if aqi > 100:
+        send_sms(aqi)
 
 air_quality_list = []
 # Function to add data to database -- will be updated to work with db
@@ -93,7 +94,7 @@ def API_call_schedule():
 API_call_schedule()
 
 
-# SMS text should not be sent on interval schedule, only should send if it is over a certain amount 
+# Add logic to check if aqi value is the same as the previous value, if it is, don't send alert
 # Can update sms send logic to send message based on aqi level -- if aqi < 50, sms = air quality is good
 # Will need to add error logic for sequence of function calls so program does not break
 
@@ -102,9 +103,3 @@ API_call_schedule()
 # - memoize data
 # - how event is triggered by user
 
-# API_response = call_API()
-# aqi = convert_to_AQI(API_response)
-# save_to_database(aqi)
-# Function to initiate text/email/notification 
-
-  # pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
