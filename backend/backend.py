@@ -42,8 +42,6 @@ def convert_to_AQI(result):
         return calculate_AQI(pm25, 50, 0, 12, 0)
     else:
         return None
-    
-
 
 # Formula to convert PM to AQI from Airnow.gov:
 # Cp = the truncated concentration of pollutant p
@@ -61,14 +59,10 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     print("Calculation executed")
     return aqi
 
-
 # Function to initiate text/email/notification 
 def send_alert(aqi):
-    if aqi > 50:
-        alert = send_sms()
-        print("Calling send_sms function")
-        return alert
-
+    if aqi > 150:
+        send_sms()
 
 air_quality_list = []
 # Function to add data to database -- will be updated to work with db
@@ -86,7 +80,7 @@ def API_call_schedule():
 
         aqi = convert_to_AQI(API_response)
         
-        send_sms(aqi)
+        send_alert(aqi)
 
         save_to_database(aqi)
 
@@ -98,8 +92,9 @@ def API_call_schedule():
 
 API_call_schedule()
 
-        #call another function that sends an alert ? 
 
+# SMS text should not be sent on interval schedule, only should send if it is over a certain amount 
+# Can update sms send logic to send message based on aqi level -- if aqi < 50, sms = air quality is good
 # Will need to add error logic for sequence of function calls so program does not break
 
 # Things to consider:
@@ -111,9 +106,5 @@ API_call_schedule()
 # aqi = convert_to_AQI(API_response)
 # save_to_database(aqi)
 # Function to initiate text/email/notification 
-
-
-
- 
 
   # pm25_average = purple_air_data['sensor']['stats_b']['pm2.5_10minute']
