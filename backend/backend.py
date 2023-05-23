@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import schedule
 import time
+from send_sms import * 
 
 # Load env variables from dotenv
 load_dotenv()
@@ -60,8 +61,16 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     print("Calculation executed")
     return aqi
 
-air_quality_list = []
 
+# Function to initiate text/email/notification 
+def send_alert(aqi):
+    if aqi > 50:
+        alert = send_sms()
+        print("Calling send_sms function")
+        return alert
+
+
+air_quality_list = []
 # Function to add data to database -- will be updated to work with db
 def save_to_database(aqi):
     air_quality_list.append(aqi)
@@ -76,6 +85,8 @@ def API_call_schedule():
         API_response = call_API()
 
         aqi = convert_to_AQI(API_response)
+        
+        send_sms(aqi)
 
         save_to_database(aqi)
 
@@ -87,12 +98,8 @@ def API_call_schedule():
 
 API_call_schedule()
 
-# Function to determine if AQI is over a certain amount
-def send_alert(aqi):
-    if aqi > 80:
         #call another function that sends an alert ? 
-        
-# Function to initiate text/email/notification 
+
 # Will need to add error logic for sequence of function calls so program does not break
 
 # Things to consider:
