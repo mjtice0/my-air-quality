@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # Find your Account SID and Auth Token at twilio.com/console
 # and set the environment variables. See http://twil.io/secure
-# Load env variables from dotenv
+
 load_dotenv()
 
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
