@@ -6,8 +6,8 @@ import schedule
 import time
 from send_sms import * 
 
-app = Flask(__name__)
 load_dotenv()
+app = Flask(__name__)
 
 # Api key variables
 my_api_read_key = os.getenv("API_READ_KEY")
@@ -15,17 +15,18 @@ my_api_write_key = os.getenv("API_WRITE_KEY")
 
 @app.route("/")
 def home():
-    return '<h1>Hello, World</h1>'
+    return '<h1>Hello, Air Quality</h1>'
 
 @app.route("/search")
 def search():
-    my_url = "https://api.purpleair.com/v1/sensors/121321"
+    my_url = "https://api.purpleair.com/v1/sensors/168067"
     my_headers = {'X-API-Key':my_api_read_key}
-    response = requests.get(my_url, headers=my_headers)
+    response = requests.get(my_url, headers= my_headers)
     purple_air_data = response.json()
     result = purple_air_data['sensor']['pm2.5']
     print("API call executed")
     aqi = convert_to_AQI(result)
+    send_alert(aqi)
     return f"The AQI for your location is: {aqi}"
 
 def convert_to_AQI(result):
@@ -58,21 +59,43 @@ def calculate_AQI(Cp, IHi, ILo, BPHi, BPLo):
     print("Calculation executed")
     return aqi
 
+def send_alert(aqi):
+    if aqi > 0:
+        send_sms(aqi)
+
+
+def API_call_schedule():
+    def scheduled_call():
+        API_response = search()
+
+        aqi = convert_to_AQI(API_response)
+        
+        send_alert(aqi)
+
+        # save_to_database(aqi)
+
+    schedule.every(10).seconds.do(scheduled_call)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
 
 if __name__ == '__main__':
     app.run()
-    search()
+
     
 
 # # Function to make API call to get sensor data 
 # def call_API():
-    # my_url = "https://api.purpleair.com/v1/sensors/121321"
-    # my_headers = {'X-API-Key':my_api_read_key}
-    # response = requests.get(my_url, headers=my_headers)
-    # purple_air_data = response.json()
-    # result = purple_air_data['sensor']['pm2.5']
-    # print("API call executed")
-    # return result
+#     my_url = "https://api.purpleair.com/v1/sensors/177595"
+#     my_headers = {'X-API-Key':API_READ_KEY}
+#     response = requests.get(my_url, headers=my_headers)
+#     purple_air_data = response.json()
+#     result = purple_air_data['sensor']['pm2.5']
+#     print("API call executed")
+#     # print(result)
+#     return result
 # # Function to convert pm25 raw number to AQI, calls calculate AQI function
 # def convert_to_AQI(result):
 #     pm25 = result
